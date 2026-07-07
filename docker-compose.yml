@@ -1,16 +1,18 @@
-
-
 services:
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
+      - media_data:/app/media
     ports:
       - "8000:8000"
     env_file: .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - db
+      - redis
 
   db:
     image: postgres:16
@@ -23,5 +25,24 @@ services:
     ports:
       - "5432:5432"
 
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  celery:
+    build: .
+    command: celery -A config worker -l info --without-mingle --without-gossip --without-heartbeat
+    volumes:
+      - .:/app
+      - media_data:/app/media
+    env_file: .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - db
+      - redis
+
 volumes:
   postgres_data:
+  media_data:
