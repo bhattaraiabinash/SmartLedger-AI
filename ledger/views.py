@@ -1,6 +1,7 @@
 from rest_framework import generics, permissions
 from .models import Invoice
 from .serializers import InvoiceUploadSerializer
+from .tasks import extract_invoice_data
 
 
 class InvoiceUploadView(generics.CreateAPIView):
@@ -9,7 +10,9 @@ class InvoiceUploadView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(uploaded_by=self.request.user, status="pending")
+        invoice = serializer.save(uploaded_by=self.request.user, status="pending")
+        extract_invoice_data.delay(str(invoice.id))
+        
 
 
 class InvoiceListView(generics.ListAPIView):
