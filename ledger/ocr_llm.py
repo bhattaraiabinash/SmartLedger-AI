@@ -75,7 +75,7 @@ def structure_with_llm(ocr_text: str) -> dict:
             "stream": False,
             "format": INVOICE_JSON_SCHEMA,
         },
-        timeout=120,
+        timeout=300,
     )
     response.raise_for_status()
     raw_output = response.json()["response"]
