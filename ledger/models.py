@@ -96,4 +96,36 @@ class ReconciliationResult(models.Model):
     def __str__(self):
         return f"{self.line_item.raw_item_name}: {self.decision}"
     
+class ActionLog(models.Model):
+    ACTOR_CHOICES = [
+        ("action_agent", "Action agent"),
+        ("owner", "Owner"),
+    ]
+    ACTION_TYPE_CHOICES = [
+        ("restock", "Restock"),
+        ("reorder_suggested", "Reorder suggested"),
+        ("vendor_alert_drafted", "Vendor alert drafted"),
+        ("approved", "Owner approved"),
+        ("rejected", "Owner rejected"),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    reconciliation_result = models.ForeignKey(
+        ReconciliationResult, on_delete=models.CASCADE, related_name="action_logs",
+        null=True, blank=True,
+    )
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
+    actor = models.CharField(max_length=30, choices=ACTOR_CHOICES)
+    action_type = models.CharField(max_length=30, choices=ACTION_TYPE_CHOICES)
+    details = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"[{self.actor}] {self.action_type}"
+    
+        
+    
     
