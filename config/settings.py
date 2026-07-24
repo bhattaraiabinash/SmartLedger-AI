@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'ledger',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -138,3 +139,17 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "SmartLedger AI API",
+    "DESCRIPTION": (
+        "Agentic invoice reconciliation and inventory backend. "
+        "handles OCR/LLM extraction, deteministic reconciliation guardrails, "
+        "and owner-approved actions."
+    ),
+    "VERSION": "1.0.0",
+}

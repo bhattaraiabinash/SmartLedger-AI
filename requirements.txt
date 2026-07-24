@@ -10,3 +10,6 @@ Pillow
 requests
 pydantic
 pdf2image
+drf-spectacular
+pytest
+pytest-django
