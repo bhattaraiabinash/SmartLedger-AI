@@ -23,7 +23,7 @@ def token_overlap(a: str, b:str) -> float:
     return overlap / smaller
     
     
-def similairity(a: str, b: str) -> float:
+def similarity(a: str, b: str) -> float:
     return max(char_similarity(a,b), token_overlap(a,b))
 
 def find_best_product_match(raw_item_name: str) -> tuple[Product | None, float]:
@@ -32,7 +32,7 @@ def find_best_product_match(raw_item_name: str) -> tuple[Product | None, float]:
     best_score = 0.0
     
     for product in Product.objects.all():
-        score = similairity(raw_item_name, product.name)
+        score = similarity(raw_item_name, product.name)
         if score > best_score:
             best_score = score
             best_product = product

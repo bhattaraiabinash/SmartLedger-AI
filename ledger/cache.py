@@ -3,7 +3,7 @@ from decouple import config
 
 _redis_client = redis.Redis.from_url(config("CELERY_BROKER_URL"), decode_responses=True)
 
-PRICE_CACHE_TTL_SECONDS = 300  # 5 minutes — short-lived, just for the duration of a reconciliation batch
+PRICE_CACHE_TTL_SECONDS = 300  
 
 
 def get_cached_vendor_price(vendor_id: str, product_id: str) -> str | None:
