@@ -3,6 +3,7 @@ from django.utils import timezone
 from .models import Invoice, InvoiceLineItem, Vendor
 from .ocr_llm import extract_and_validate
 from .reconciliation import reconcile_line_item
+from .actions import execute_actions_for_invoice
 
 
 @shared_task
@@ -83,8 +84,27 @@ def reconcile_invoice(invoice_id):
     approval_count = decisions.count("needs_approval")
     unmatched_count = decisions.count("unmatched")
     
+    run_actions_for_invoice.delay(str(invoice.id))
+    
     return (
         f"Invoice {invoice_id} reconciled: {auto_count} auto-resolved, "
         f"{approval_count} need approval, {unmatched_count} unmatched"
-    )        
+    )   
+    
+@shared_task
+def run_actions_for_invoice(invoice_id):
+    try:
+        invoice = Invoice.objects.get(id=invoice_id)
+    except Invoice.DoesNotExist:
+        return f"Invoice {invoice_id} not found"
+    
+    from .models import ActionLog
+    ActionLog.objects.filter(reconciliation_result__line_item__invoice=invoice).delete()
+    
+    logs = execute_actions_for_invoice(invoice)
+    
+    restocked = sum(1 for log in logs if log.action_type == "restock")
+    pending = len(logs) - restocked
+    
+    return f"Invoice {invoice_id}: {restocked} products restocked, {pending} actions pending owner approval"            
         
